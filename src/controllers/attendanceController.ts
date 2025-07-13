@@ -16,7 +16,7 @@ export const checkIn = async (
   res: Response
 ): Promise<void> => {
   try {
-    const photoUrl = `/uploads/${req.file.filename}`;
+    const photoUrl = req.file.path;
     const today = dayjs().tz("Asia/Jakarta").format("YYYY-MM-DD");
     const findSubmitClockIn: any = await Attendance.findOne({
       where: {
