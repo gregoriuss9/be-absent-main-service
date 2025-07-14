@@ -98,7 +98,9 @@ export const isPresenceToday = async (
   res: Response
 ): Promise<void> => {
   try {
-    const today = dayjs().tz("Asia/Jakarta").format("YYYY-MM-DD");
+    const today = dayjs().tz("Asia/Jakarta");
+    const startOfDay = today.startOf("day").toDate();
+    const endOfDay = today.endOf("day").toDate();
     let isSubmitClockIn: boolean;
     let isSubmitClockOut: boolean;
     let idAttendance: number | null = null;
@@ -106,8 +108,8 @@ export const isPresenceToday = async (
       where: {
         user_id: req.user.id,
         time_in: {
-          [Op.gte]: dayjs(today).startOf("day").toDate(),
-          [Op.lte]: dayjs(today).endOf("day").toDate(),
+          [Op.gte]: startOfDay,
+          [Op.lte]: endOfDay,
         },
       },
     });
@@ -115,8 +117,8 @@ export const isPresenceToday = async (
       where: {
         user_id: req.user.id,
         time_out: {
-          [Op.gte]: dayjs(today).startOf("day").toDate(),
-          [Op.lte]: dayjs(today).endOf("day").toDate(),
+          [Op.gte]: startOfDay,
+          [Op.lte]: endOfDay,
         },
       },
     });
@@ -133,9 +135,9 @@ export const isPresenceToday = async (
       isSubmitClockOut = false;
     }
 
-    console.log(today, "today");
-    console.log(findSubmitClockIn, "findSubmitClockIn");
-    console.log(findSubmitClockOut, "findSubmitClockOut");
+    // console.log(today, "today");
+    // console.log(findSubmitClockIn?.dataValues, "findSubmitClockIn");
+    // console.log(findSubmitClockOut?.dataValues, "findSubmitClockOut");
     res.status(200).json(
       ResponseUtil.success({
         isSubmitClockIn,
@@ -170,11 +172,19 @@ export const getOwnAttendances = async (
     const formattedRows = rows.map((row: any) => ({
       id: row.id,
       user_id: row.user_id,
-      time_in: dayjs(row.time_in).tz("Asia/Jakarta").format(),
-      time_out: dayjs(row.time_out).tz("Asia/Jakarta").format(),
+      time_in: row.time_in
+        ? dayjs(row.time_in).tz("Asia/Jakarta").format()
+        : null,
+      time_out: row.time_out
+        ? dayjs(row.time_out).tz("Asia/Jakarta").format()
+        : null,
       photo_url: row.photo_url,
-      created_at: dayjs(row.created_at).tz("Asia/Jakarta").format(),
-      updated_at: dayjs(row.updated_at).tz("Asia/Jakarta").format(),
+      created_at: row.created_at
+        ? dayjs(row.created_at).tz("Asia/Jakarta").format()
+        : null,
+      updated_at: row.updated_at
+        ? dayjs(row.updated_at).tz("Asia/Jakarta").format()
+        : null,
     }));
 
     res.status(200).json(
