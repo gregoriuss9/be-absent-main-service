@@ -133,6 +133,9 @@ export const isPresenceToday = async (
       isSubmitClockOut = false;
     }
 
+    console.log(today, "today");
+    console.log(findSubmitClockIn, "findSubmitClockIn");
+    console.log(findSubmitClockOut, "findSubmitClockOut");
     res.status(200).json(
       ResponseUtil.success({
         isSubmitClockIn,
@@ -164,13 +167,27 @@ export const getOwnAttendances = async (
       limit,
     });
 
+    const formattedRows = rows.map((row: any) => ({
+      id: row.id,
+      user_id: row.user_id,
+      time_in: dayjs(row.time_in).tz("Asia/Jakarta").format(),
+      time_out: dayjs(row.time_out).tz("Asia/Jakarta").format(),
+      photo_url: row.photo_url,
+      created_at: dayjs(row.created_at).tz("Asia/Jakarta").format(),
+      updated_at: dayjs(row.updated_at).tz("Asia/Jakarta").format(),
+    }));
+
     res.status(200).json(
-      ResponseUtil.success(rows, "Success fetch attendances on your account", {
-        page,
-        limit,
-        totalPage: Math.ceil(count / limit),
-        total: count,
-      })
+      ResponseUtil.success(
+        formattedRows,
+        "Success fetch attendances on your account",
+        {
+          page,
+          limit,
+          totalPage: Math.ceil(count / limit),
+          total: count,
+        }
+      )
     );
   } catch (error) {
     console.error("Error fetching attendances:", error);
